@@ -14,9 +14,6 @@
 #include "TROOT.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "TBrowser.h"
-#include "TH2.h"
-#include "TRandom.h"
 
 using namespace std;
 
