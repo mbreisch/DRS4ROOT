@@ -74,9 +74,11 @@ mkdir -p root_build root_install && cd root_build
 cd .. 
 cd ..
 
-LOCALIZE = "$SOURCE$CURRENT$ROOTDIR"
-echo $LOCALIZE >> ~/.bashrc 
-
+echo ""
+echo ""
+echo "----------------------------------------------------------------"
 echo "Done with the install of Root"
-echo "Installed version is already sourced in the bashrc" 
+echo "Installed version is already sourced in the bashrc in" 
+echo "$SOURCE$CURRENT$ROOTDIR"
+
 
