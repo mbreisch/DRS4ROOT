@@ -42,7 +42,7 @@ The prompt will then guide you to enter an input and an output file.
 The inputfile has to be entered as full path-to-file (e.g. `./RawFiles/Ex1/File1.dat`, if you want to use the existing folder for raw files).  
 The outputfile will only need a name (e.g. `SaveName1`, no data extension) and is saved in the NewRootFiles folder. This will be changed to feature an user defined save folder.
 
-# What does the root three look like? (BETA)
+# What does the root three look like? (BETA, out-of-date)
 Each root file will contain as many trees as there were events in the original binary file.
 Each tree is labeled 'Event_N;1' with N as the event number. 
 Inside each tree are then several branches:
