@@ -48,6 +48,7 @@ Each tree is labeled 'Event_N;1' with N as the event number.
 Inside each tree are then several branches:
   - Waveform_BX_ChY
   - Time_BX_ChY
+
 X represents the number of the connected DRS4 boards starting at 0 for one boards and incrementing for additional boards.
 Y represents the channel on the DRS4 board going from 0 to 3 for each board.
 The Waveform branches are in mV and the Time branches in ns.
