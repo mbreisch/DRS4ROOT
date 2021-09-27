@@ -68,11 +68,22 @@ class BinDecode
         TFile *RFile;
         double waveform[16][4][1024];
         double time[16][4][1024];
+        unsigned int scaler, Scaler;
         int n_boards;
         double Sample;
         double TimeBin;
         double Trigger;
         string Savename;
+        unsigned short Triggercell, glob_triggercell;
+        unsigned short Timestamp_y, glob_timestamp_y;
+        unsigned short Timestamp_m, glob_timestamp_m;
+        unsigned short Timestamp_d, glob_timestamp_d;
+        unsigned short Timestamp_hh, glob_timestamp_hh;
+        unsigned short Timestamp_mm, glob_timestamp_mm;
+        unsigned short Timestamp_ss, glob_timestamp_ss;
+        unsigned short Timestamp_mils, glob_timestamp_mils;
+        unsigned short Range, glob_range;
+
 
         int Decode(string filename, string savename, int limit);
         void CreateRootFile(string savename);

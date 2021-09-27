@@ -17,7 +17,6 @@ int BinDecode::Decode(string filename, string savename, int limit)
 	CHEADER  ch;
 
     Savename = savename;
-    unsigned int scaler;
 	unsigned short voltage[1024];
 	float bin_width[16][4][1024];
 	int i, j, b, chn, n, chn_index;
@@ -81,7 +80,6 @@ int BinDecode::Decode(string filename, string savename, int limit)
 			fread(&bin_width[b][i][0], sizeof(float), 1024, f);
 		}
 	}
-
 	n_boards = b;
 
 	// loop over all events in the data file
@@ -94,6 +92,14 @@ int BinDecode::Decode(string filename, string savename, int limit)
 			break;
 		}
 		printf("Found event #%d %d %d\n", eh.event_serial_number, eh.second, eh.millisecond);
+		glob_timestamp_y = eh.year;
+		glob_timestamp_m = eh.month;
+		glob_timestamp_d = eh.day;
+		glob_timestamp_hh = eh.hour;
+		glob_timestamp_mm = eh.minute;
+		glob_timestamp_ss = eh.second;
+		glob_timestamp_mils = eh.millisecond;
+		glob_range = eh.range;
 
 		// loop over all boards in data file
 		for (b=0 ; b<n_boards ; b++) 
@@ -113,6 +119,7 @@ int BinDecode::Decode(string filename, string savename, int limit)
 				printf("Invalid trigger cell header in file \'%s\', aborting.\n", filename.c_str());
 				return 0;
 			}
+			glob_triggercell = tch.trigger_cell;
 
 			if (n_boards > 1)
             {
@@ -180,6 +187,22 @@ int BinDecode::ToRoot(int evn)
 		BoTree->SetEntries(1);
     	TBranch* bo = BoTree->Branch("Boards",&boards,"Boards/I");	
 		bo->Fill();
+
+		TTree *TimeTree = new TTree("TimeBinWidth","Time bin-width for the channels");
+		TimeTree->SetEntries(1024);
+		for(int b=0; b<n_boards; b++)
+		{	
+			for(int ch=0; ch<4; ch++)
+			{
+				string strb2 = "Time_B" + to_string(b) + "_Ch" + to_string(ch);
+				TBranch* bT = TimeTree->Branch(strb2.c_str(),&TimeBin,"TimeBin/D");
+				for(int smp=0; smp<1024; smp++)
+				{
+					TimeBin = time[b][ch][smp];
+					bT->Fill();
+				}
+			}
+		}
 	}
 
 	for(int b=0; b<n_boards; b++)
@@ -209,18 +232,47 @@ int BinDecode::CreateTreeAndBranches(int b, int ch, int evn)
 	}
 
 	string strb1 = "Waveform_B" + to_string(b) + "_Ch" + to_string(ch);
-	string strb2 = "Time_B" + to_string(b) + "_Ch" + to_string(ch);
     TBranch* b1 = NewTree->Branch(strb1.c_str(),&Sample,"Sample/D");
-    TBranch* b2 = NewTree->Branch(strb2.c_str(),&TimeBin,"TimeBin/D");
-
     for(int smp=0; smp<1024; smp++)
     {
-        //cout << "Filling " << b << "/" << ch << "/" << smp << endl;
         Sample = waveform[b][ch][smp];
         b1->Fill();
-        TimeBin = time[b][ch][smp];
-        b2->Fill();
     }
+	string strb2 = "Scaler_B" + to_string(b) + "_Ch" + to_string(ch);
+	TBranch* b2 = NewTree->Branch(strb2.c_str(),&Scaler,"Scaler/I");
+	Scaler = scaler;
+	b2->Fill();
+
+	if(b==0 && ch==0)
+	{
+		TBranch* b3 = NewTree->Branch("Triggercell",&Triggercell,"Triggercell/I");
+		Triggercell = glob_triggercell;
+		b3->Fill();
+		TBranch* b4 = NewTree->Branch("Timestamp_y",&Timestamp_y,"Timestamp_y/I");
+		Timestamp_y = glob_timestamp_y;
+		b4->Fill();
+		TBranch* b5 = NewTree->Branch("Timestamp_m",&Timestamp_m,"Timestamp_m/I");
+		Timestamp_m = glob_timestamp_m;
+		b5->Fill();
+		TBranch* b6 = NewTree->Branch("Timestamp_d",&Timestamp_d,"Timestamp_d/I");
+		Timestamp_d = glob_timestamp_d;
+		b6->Fill();
+		TBranch* b7 = NewTree->Branch("Timestamp_hh",&Timestamp_hh,"Timestamp_hh/I");
+		Timestamp_hh = glob_timestamp_hh;
+		b7->Fill();
+		TBranch* b8 = NewTree->Branch("Timestamp_mm",&Timestamp_mm,"Timestamp_mm/I");
+		Timestamp_mm = glob_timestamp_mm;
+		b8->Fill();
+		TBranch* b9 = NewTree->Branch("Timestamp_ss",&Timestamp_ss,"Timestamp_ss/I");
+		Timestamp_ss = glob_timestamp_ss;
+		b9->Fill();
+		TBranch* b10 = NewTree->Branch("Timestamp_mils",&Timestamp_mils,"Timestamp_mils/I");
+		Timestamp_mils = glob_timestamp_mils;
+		b10->Fill();
+		TBranch* b11 = NewTree->Branch("Range",&Range,"Range/I");
+		Range = glob_range;
+		b11->Fill();	
+	}
 
     return 1;
 }
