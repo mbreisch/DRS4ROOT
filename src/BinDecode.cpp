@@ -16,15 +16,16 @@ int BinDecode::Decode(string filename, string savename, int limit)
 	TCHEADER tch;
 	CHEADER  ch;
 
-    Savename = savename;
+    	Savename = savename;
 	unsigned short voltage[1024];
 	float bin_width[16][4][1024];
 	int i, j, b, chn, n, chn_index;
+	double t1, t2, dt;
 
 	// open the binary waveform file
 	FILE *f = fopen(filename.c_str(), "rb");
 	if (f == NULL) 
-    {
+    	{
 		printf("Cannot find file \'%s\'\n", filename.c_str());
 		return 0;
 	}
@@ -32,13 +33,13 @@ int BinDecode::Decode(string filename, string savename, int limit)
 	// read file header
 	fread(&fh, sizeof(fh), 1, f);
 	if (fh.tag[0] != 'D' || fh.tag[1] != 'R' || fh.tag[2] != 'S') 
-    {
+    	{
 		printf("Found invalid file header in file \'%s\', aborting.\n", filename.c_str());
 		return 0;
 	}
 
 	if (fh.version != '2') 
-    {
+    	{
 		printf("Found invalid file version \'%c\' in file \'%s\', should be \'2\', aborting.\n", fh.version, filename.c_str());
 		return 0;
 	}
@@ -46,17 +47,17 @@ int BinDecode::Decode(string filename, string savename, int limit)
 	// read time header
 	fread(&th, sizeof(th), 1, f);
 	if (memcmp(th.time_header, "TIME", 4) != 0) 
-    {
+    	{
 		printf("Invalid time header in file \'%s\', aborting.\n", filename.c_str());
 		return 0;
 	}
 
 	for (b = 0 ; ; b++) 
-    {
+    	{
 		// read board header
 		fread(&bh, sizeof(bh), 1, f);
 		if (memcmp(bh.bn, "B#", 2) != 0) 
-        {
+        	{
 			// probably event header found
 			fseek(f, -4, SEEK_CUR);
 			break;
@@ -67,10 +68,10 @@ int BinDecode::Decode(string filename, string savename, int limit)
 		// read time bin widths
 		memset(bin_width[b], sizeof(bin_width[0]), 0);
 		for (chn=0 ; chn<5 ; chn++) 
-        {
+        	{
 			fread(&ch, sizeof(ch), 1, f);
 			if (ch.c[0] != 'C') 
-            {
+            		{
 				// event header found
 				fseek(f, -4, SEEK_CUR);
 				break;
@@ -84,11 +85,11 @@ int BinDecode::Decode(string filename, string savename, int limit)
 
 	// loop over all events in the data file
 	for (n=0 ; ; n++) 
-    {
+    	{
 		// read event header
 		i = (int)fread(&eh, sizeof(eh), 1, f);
 		if (i < 1)
-        {
+        	{
 			break;
 		}
 		printf("Found event #%d %d %d\n", eh.event_serial_number, eh.second, eh.millisecond);
@@ -103,11 +104,11 @@ int BinDecode::Decode(string filename, string savename, int limit)
 
 		// loop over all boards in data file
 		for (b=0 ; b<n_boards ; b++) 
-        {
+        	{
 			// read board header
 			fread(&bh, sizeof(bh), 1, f);
 			if (memcmp(bh.bn, "B#", 2) != 0) 
-            {
+            		{
 				printf("Invalid board header in file \'%s\', aborting.\n", filename.c_str());
 				return 0;
 			}
@@ -115,52 +116,62 @@ int BinDecode::Decode(string filename, string savename, int limit)
 			// read trigger cell
 			fread(&tch, sizeof(tch), 1, f);
 			if (memcmp(tch.tc, "T#", 2) != 0) 
-            {
+            		{
 				printf("Invalid trigger cell header in file \'%s\', aborting.\n", filename.c_str());
 				return 0;
 			}
 			glob_triggercell = tch.trigger_cell;
 
 			if (n_boards > 1)
-            {
+            		{
 				printf("Found data for board #%d\n", bh.board_serial_number);
 			}
 
 			// reach channel data
 			for (chn=0 ; chn<4 ; chn++) 
-            {
+            		{
 				// read channel header
 				fread(&ch, sizeof(ch), 1, f);
 				if (ch.c[0] != 'C') 
-                {
+                		{
 					// event header found
 					fseek(f, -4, SEEK_CUR);
 					break;
 				}
 				chn_index = ch.cn[2] - '0' - 1;
-                fread(&scaler, sizeof(int), 1, f);
+                		fread(&scaler, sizeof(int), 1, f);
 				fread(voltage, sizeof(short), 1024, f);
 
 				for (i=0 ; i<1024 ; i++) 
-                {
+                		{
 					// convert data to volts
 					waveform[b][chn_index][i] = (voltage[i] / 65536. + eh.range/1000.0 - 0.5);
 
 					// calculate time for this cell
 					for (j=0,time[b][chn_index][i]=0 ; j<i ; j++)
-                    {
+                    			{
 						time[b][chn_index][i] += bin_width[b][chn_index][(j+tch.trigger_cell) % 1024];
 					}				
 				}	
-			}	      
+			}	
+			// align cell #0 of all channels
+         		t1 = time[b][0][(1024-tch.trigger_cell) % 1024];
+         		for (chn=1 ; chn<4 ; chn++) 
+			{
+            			t2 = time[b][chn][(1024-tch.trigger_cell) % 1024];
+            			dt = t1 - t2;
+            			for (i=0 ; i<1024 ; i++)
+				{
+               				time[b][chn][i] += dt;
+				}
+         		} 
 		}
-        ToRoot(n);
+       		ToRoot(n);
 		if(n+1>=limit && limit !=-1)
 		{
 			break;
 		}
 	}
-
 	CloseRootFile();
 	cout << "DONE!" << endl;
 	return 1;
@@ -168,8 +179,8 @@ int BinDecode::Decode(string filename, string savename, int limit)
 
 void BinDecode::CreateRootFile(string savename)
 {
-    string RootFile = "./NewRootFiles/" + savename + ".root";
-    RFile = new TFile(RootFile.c_str(),"update");
+    	string RootFile = "./NewRootFiles/" + savename + ".root";
+	RFile = new TFile(RootFile.c_str(),"update");
 }
 
 void BinDecode::CloseRootFile()
@@ -183,9 +194,9 @@ int BinDecode::ToRoot(int evn)
 	if(evn==0)
 	{
 		int boards = n_boards;
-	    TTree *BoTree = new TTree("Boards","Number of chained DRS4 boards");
+	    	TTree *BoTree = new TTree("Boards","Number of chained DRS4 boards");
 		BoTree->SetEntries(1);
-    	TBranch* bo = BoTree->Branch("Boards",&boards,"Boards/I");	
+    		TBranch* bo = BoTree->Branch("Boards",&boards,"Boards/I");	
 		bo->Fill();
 
 		TTree *TimeTree = new TTree("TimeBinWidth","Time bin-width for the channels");
@@ -218,8 +229,8 @@ int BinDecode::ToRoot(int evn)
 
 int BinDecode::CreateTreeAndBranches(int b, int ch, int evn)
 {
-    string event = "Event_" + to_string(evn);
-    string description = "Tree representing event " + to_string(evn) + " of board " + to_string(b);
+    	string event = "Event_" + to_string(evn);
+    	string description = "Tree representing event " + to_string(evn) + " of board " + to_string(b);
 	TTree *NewTree;
 
 	if(ch==0)
@@ -232,12 +243,12 @@ int BinDecode::CreateTreeAndBranches(int b, int ch, int evn)
 	}
 
 	string strb1 = "Waveform_B" + to_string(b) + "_Ch" + to_string(ch);
-    TBranch* b1 = NewTree->Branch(strb1.c_str(),&Sample,"Sample/D");
-    for(int smp=0; smp<1024; smp++)
-    {
-        Sample = waveform[b][ch][smp];
-        b1->Fill();
-    }
+    	TBranch* b1 = NewTree->Branch(strb1.c_str(),&Sample,"Sample/D");
+    	for(int smp=0; smp<1024; smp++)
+    	{
+       	 	Sample = waveform[b][ch][smp];
+        	b1->Fill();
+    	}
 	string strb2 = "Scaler_B" + to_string(b) + "_Ch" + to_string(ch);
 	TBranch* b2 = NewTree->Branch(strb2.c_str(),&Scaler,"Scaler/I");
 	Scaler = scaler;
@@ -274,5 +285,5 @@ int BinDecode::CreateTreeAndBranches(int b, int ch, int evn)
 		b11->Fill();	
 	}
 
-    return 1;
+    	return 1;
 }
