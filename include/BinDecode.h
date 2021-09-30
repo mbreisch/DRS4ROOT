@@ -87,7 +87,7 @@ class BinDecode
 
         int Decode(string filename, string savename, int limit);
         void CreateRootFile(string savename);
-        void CloseRootFile();
+        void CloseRootFile(int n_evn);
         int ToRoot(int evn);
         int CreateTreeAndBranches(int b, int ch, int evn);
 
