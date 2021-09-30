@@ -172,7 +172,7 @@ int BinDecode::Decode(string filename, string savename, int limit)
 			break;
 		}
 	}
-	CloseRootFile();
+	CloseRootFile(n);
 	cout << "DONE!" << endl;
 	return 1;
 }
@@ -183,8 +183,13 @@ void BinDecode::CreateRootFile(string savename)
 	RFile = new TFile(RootFile.c_str(),"update");
 }
 
-void BinDecode::CloseRootFile()
+void BinDecode::CloseRootFile(int n_evn)
 {
+	int events = n_evn;
+	TTree *EvTree = new TTree("EventNr","Number of events in the tree");
+	EvTree->SetEntries(1);
+	TBranch* ev = EvTree->Branch("EventNr",&events,"events/I");	
+	ev->Fill();	
 	RFile->Write();
 	RFile->Close();
 }
@@ -196,7 +201,7 @@ int BinDecode::ToRoot(int evn)
 		int boards = n_boards;
 	    	TTree *BoTree = new TTree("Boards","Number of chained DRS4 boards");
 		BoTree->SetEntries(1);
-    		TBranch* bo = BoTree->Branch("Boards",&boards,"Boards/I");	
+    		TBranch* bo = BoTree->Branch("Boards",&boards,"boards/I");	
 		bo->Fill();
 
 		TTree *TimeTree = new TTree("TimeBinWidth","Time bin-width for the channels");
