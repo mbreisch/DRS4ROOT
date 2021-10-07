@@ -1,5 +1,5 @@
 #!/bin/bash
-CURRENT='pwd'
+CURRENT=$(pwd)
 ROOTDIR="/Root_local/root_install/bin/thisroot.sh"
 SOURCE="source "
 
@@ -65,11 +65,11 @@ then
 fi
 
 
-mkdir -p Root_local && cd Root_local
-git clone --branch latest-stable https://github.com/root-project/root.git root_src
-mkdir -p root_build root_install && cd root_build
-cmake -DCMAKE_INSTALL_PREFIX=../root_install ../root_src -DCMAKE_CXX_STANDARD=17
-cmake --build . -- install -j4
+#mkdir -p Root_local && cd Root_local
+#git clone --branch latest-stable https://github.com/root-project/root.git root_src
+#mkdir -p root_build root_install && cd root_build
+#cmake -DCMAKE_INSTALL_PREFIX=../root_install ../root_src -DCMAKE_CXX_STANDARD=17
+#cmake --build . -- install -j4
 
 cd .. 
 cd ..
@@ -79,6 +79,6 @@ echo ""
 echo "----------------------------------------------------------------"
 echo "Done with the install of Root"
 echo "Installed version is already sourced in the bashrc in" 
+echo "$SOURCE$CURRENT$ROOTDIR" >> ~/.bashrc 
 echo "$SOURCE$CURRENT$ROOTDIR"
-
 
