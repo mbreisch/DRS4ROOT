@@ -238,7 +238,7 @@ int BinDecode::CreateTreeAndBranches(int b, int ch, int evn)
     	string description = "Tree representing event " + to_string(evn) + " of board " + to_string(b);
 	TTree *NewTree;
 
-	if(ch==0)
+	if(ch==0 && b==0)
 	{
 		NewTree= new TTree(event.c_str(),description.c_str(),1);
 		NewTree->SetEntries(1024);
