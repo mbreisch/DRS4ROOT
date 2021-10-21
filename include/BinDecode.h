@@ -7,8 +7,10 @@
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 //Root dependencies
 #include "TROOT.h"
@@ -83,7 +85,7 @@ class BinDecode
         unsigned short Timestamp_ss, glob_timestamp_ss;
         unsigned short Timestamp_mils, glob_timestamp_mils;
         unsigned short Range, glob_range;
-
+        vector<double*> MinV;
 
         int Decode(string filename, string savename, int limit);
         void CreateRootFile(string savename);

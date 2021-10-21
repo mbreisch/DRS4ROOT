@@ -9,32 +9,37 @@ int main(int argc, char** argv)
     BinDecode BD;
 
     string input,output;
-    string exit("exit");
-    int limit;
+    string line, path, file, makefolder;
+    int limit=-1;
 
-    while(input.compare(exit)!=0)
+    std::fstream infile("./configfiles/filelist.txt", std::ios_base::in);
+
+    if(infile.is_open())
     {
-        cout << "Enter the input filename: ";
-        cin >> input;
+        while(getline(infile, input))
+        {   
+            line = input;
+            std::size_t found_slash = line.find_last_of("/");
+            path = line.substr(0,found_slash);
+            file = line.substr(found_slash+1);
 
-		if(input.compare(exit)==0)
-        {
-			break;
-		}
+            makefolder = "mkdir -p " + path + "/ROOTFILES";
+            system(makefolder.c_str());
+            
+            std::size_t found_dot = file.find_last_of(".");
+            output = path + "/ROOTFILES/" + file.substr(0,found_dot) + ".root";
 
-        cout << "Enter the save fileneme: ";
-        cin >> output;
-
-        if(argc>1)
-        {
-            limit = stoi(argv[1]);
-        }else
-        {
-            limit = -1;
+            if(argc>1)
+            {
+                limit = stoi(argv[1]);
+            }
+            BD.Decode(input,output,limit);
         }
-
-        BD.Decode(input,output,limit);
-	}
+  	    infile.close();
+    }else
+    {
+        cout << ">>>>> File not found! Try again" << endl;
+    }
 
     return 0;
 }
