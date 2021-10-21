@@ -1,9 +1,7 @@
 #include <BinDecode.h>
 
 BinDecode::BinDecode()
-{
-    system("mkdir -p NewRootFiles");
-}
+{}
 
 int BinDecode::Decode(string filename, string savename, int limit)
 {
