@@ -2,6 +2,19 @@
 CURRENT=$(pwd)
 ROOTDIR="/Root_local/root_install/bin/thisroot.sh"
 SOURCE="source "
+YES_S = "y"
+NO_S = "n"
+
+echo ">>>> This is a small shell script to install the latest Root version in local folder."
+echo ">>>> It will be sourced afterwards and should be usable globally."
+echo ">>>> The required prerequisites will be checked and installed if neccessary, but special prerequisites are your own problem!"
+echo ">>>> Did you understand all this? (y/n)"
+read ANSWER
+
+if [ "$ANSWER" != "$YES_S" ]; then
+    echo "OK! Exiting  the setup"
+    exit 0
+fi
 
 if ! command -v git &> /dev/null
 then
@@ -65,11 +78,11 @@ then
 fi
 
 
-#mkdir -p Root_local && cd Root_local
-#git clone --branch latest-stable https://github.com/root-project/root.git root_src
-#mkdir -p root_build root_install && cd root_build
-#cmake -DCMAKE_INSTALL_PREFIX=../root_install ../root_src -DCMAKE_CXX_STANDARD=17
-#cmake --build . -- install -j4
+mkdir -p Root_local && cd Root_local
+git clone --branch latest-stable https://github.com/root-project/root.git root_src
+mkdir -p root_build root_install && cd root_build
+cmake -DCMAKE_INSTALL_PREFIX=../root_install ../root_src -DCMAKE_CXX_STANDARD=17
+cmake --build . -- install -j4
 
 cd .. 
 cd ..
