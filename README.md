@@ -33,14 +33,15 @@ where N is the number of available CPU cores. Once done the DRS4ROOT folder shou
 ```
 executable.
 
+# Choose the files
+To choose your binary files to transform enter them with their respective path into the configfiles/filelist.txt file. 
+At the same location a ROOTFILES folder will be created containing the new root file.
+
 # How to use the DRS4ROOT tool
 To run the just run 
 ```bash
 ./DRS4ROOT
 ```
-The prompt will then guide you to enter an input and an output file.  
-The inputfile has to be entered as full path-to-file (e.g. `./RawFiles/Ex1/File1.dat`, if you want to use the existing folder for raw files).  
-The outputfile will only need a name (e.g. `SaveName1`, no data extension) and is saved in the NewRootFiles folder. This will be changed to feature an user defined save folder.
 
 # What does the root three look like? (BETA, out-of-date)
 Each root file will contain as many trees as there were events in the original binary file.
