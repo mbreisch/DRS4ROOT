@@ -65,11 +65,11 @@ then
 fi
 
 
-#mkdir -p Root_local && cd Root_local
-#git clone --branch latest-stable https://github.com/root-project/root.git root_src
-#mkdir -p root_build root_install && cd root_build
-#cmake -DCMAKE_INSTALL_PREFIX=../root_install ../root_src -DCMAKE_CXX_STANDARD=17
-#cmake --build . -- install -j4
+mkdir -p Root_local && cd Root_local
+git clone --branch latest-stable https://github.com/root-project/root.git root_src
+mkdir -p root_build root_install && cd root_build
+cmake -DCMAKE_INSTALL_PREFIX=../root_install ../root_src -DCMAKE_CXX_STANDARD=17 -DPython3_EXECUTABLE=/home/annie_ubuntu/miniconda/bin/python3
+cmake --build . -- install -j14
 
 cd .. 
 cd ..
